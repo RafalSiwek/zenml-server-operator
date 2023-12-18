@@ -1,0 +1,35 @@
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: '{{ app_name }}-db-migration'
+  namespace: '{{ namespace }}'
+spec:
+  backoffLimit: 2
+  template:
+    metadata:
+      name: '{{ app_name }}-db-migration'
+      namespace: '{{ namespace }}'
+    spec:
+      securityContext:
+        runAsNonRoot: true
+        runAsUser: 1000
+      restartPolicy: Never
+      containers:
+        - name: '{{ app_name }}-db-migration'
+          image: zenmldocker/zenml-server
+          imagePullPolicy: Always
+          args: ["migrate-database"]
+          command: ["zenml"]
+          env:
+            - name: ZENML_LOGGING_VERBOSITY
+              value: '{{ logging_verbosity }}'
+            - name: ZENML_DEFAULT_PROJECT_NAME
+              value: '{{ default_project_name }}'
+            - name: ZENML_DEFAULT_USER_NAME
+              value: '{{ default_user_name }}'
+            - name: ZENML_STORE_TYPE
+              value: '{{ store_type }}'
+            - name: ZENML_STORE_SSL_VERIFY_SERVER_CERT
+              value: '{{ store_ssl_verify_server_cert }}'
+            - name: ZENML_STORE_URL
+              value: '{{ database_url }}'

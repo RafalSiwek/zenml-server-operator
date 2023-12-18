@@ -1,0 +1,20 @@
+options:
+  zenml_logging_verbosity:
+    description: |
+      The logging verbosity of ZenDesk Server
+    type: string
+    default: "DEBUG"
+  zenml_port:
+    description: |
+      The port ZenDesk Server will be listening on
+    type: int
+    default: 8080
+  zenml_nodeport:
+    description: |
+      The nodeport for ZenDesk Server
+    type: int
+    default: 31375
+  enable_zenml_nodeport:
+    description: Deploy the NodePort service for ZenDesk Server
+    type: boolean
+    default: true
