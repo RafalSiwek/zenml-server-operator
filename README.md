@@ -68,7 +68,7 @@ microk8s is running
 
 **NOTE:** To use the MicroK8s built-in registry in the [ZenML stack](https://docs.zenml.io/stacks-and-components/component-guide/model-registries), please refer to the [guide](https://microk8s.io/docs/registry-built-in)
 
-### Install and prepare MicroK8s
+### Install and prepare juju
 
 To install Juju from snap, run this command:
 
