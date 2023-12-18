@@ -31,7 +31,7 @@ source .tox/unit/bin/activate
 
 ### Testing
 
-**Unit and integration tests are comming soon!**
+**Unit and integration tests are coming soon!**
 
 ```shell
 tox -e lint          # code style

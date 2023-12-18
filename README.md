@@ -1,8 +1,6 @@
 # [ZenML](https://www.zenml.io/) on Juju with Microk8s
 
-**PROJECT STATUS: WORK IN PROGRESS**
-
-**NOTE:** This project was inspired by the [Charmed MLFlow Project](https://github.com/canonical/mlflow-operator) and implements some solutions found there.
+**DISCLAIMER:** This project was inspired by the [Charmed MLFlow Project](https://github.com/canonical/mlflow-operator) and also implements solutions found there.
 
 ## Get started
 
@@ -54,7 +52,7 @@ Enable the following MicroK8s addons to configure your Kubernetes cluster with e
 microk8s enable dns hostpath-storage ingress metallb:10.64.140.43-10.64.140.49
 ```
 
-Wait untill the command
+Wait until the command
 
 ```bash
 microk8s status --wait-ready
@@ -125,7 +123,7 @@ To use Charmed Kubeflow as a orchestrator for a ZenML stack some configurations 
 
 To install Charmed Kubeflow follow [this guide](https://charmed-kubeflow.io/docs/get-started-with-charmed-kubeflow)
 
-If running Charmed Kubeflow on a EC2 instance, configure the `istio-ingress-gateway` service tyope to `NodePort`:
+If running Charmed Kubeflow on a EC2 instance, configure the `istio-ingress-gateway` service type to `NodePort`:
 
 ```bash
 kubectl -n kubeflow patch svc istio-ingressgateway-workload \
@@ -150,7 +148,7 @@ Set authentication methods:
 
 ```bash
 juju config dex-auth static-username="<your username>"
-juju config dex-auth static-password="<your pasword>"
+juju config dex-auth static-password="<your password>"
 ```
 
 And make sure the security group allows ingress to the instance on CIDR of `echo "${NODE_IP}/32"` on the `echo $NODE_PORT` port
@@ -194,7 +192,7 @@ Or, when running on a EC2 with ingress configured to allow both `<Dashboard port
 echo "${PUBLIC_URL}:<Dashboard port>"
 ```
 
-The `MINIO_ACCESS_KEY` and `MINIO_SECRET_KEY` in **base64** can be recived form Kubernetes Secrets:
+The `MINIO_ACCESS_KEY` and `MINIO_SECRET_KEY` in **base64** can be received form Kubernetes Secrets:
 
 ```bash
 kubectl get secrets minio-secret -n kubeflow -o yaml

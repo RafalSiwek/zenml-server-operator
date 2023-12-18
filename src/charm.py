@@ -2,7 +2,6 @@
 
 import json
 import logging
-from tenacity import retry, wait_fixed, stop_after_attempt
 from pathlib import Path
 
 import yaml
@@ -20,6 +19,7 @@ from ops.main import main
 from ops.model import ActiveStatus, BlockedStatus, MaintenanceStatus, WaitingStatus
 from ops.pebble import ChangeError, Layer
 from serialized_data_interface import NoCompatibleVersions, NoVersionsListed, get_interfaces
+from tenacity import retry, stop_after_attempt, wait_fixed
 
 ZENML_JOB = [
     "src/jobs/zenml-db-job.yaml.j2",
@@ -27,7 +27,7 @@ ZENML_JOB = [
 
 
 class ZenMLCharm(CharmBase):
-    """A Juju Charm for MLFlow."""
+    """A Juju Charm for ZenML Server."""
 
     def __init__(self, *args):
         super().__init__(*args)
@@ -220,6 +220,7 @@ class ZenMLCharm(CharmBase):
         return json.dumps(manifests)
 
     def _send_ingress_info(self, interfaces):
+        """Config based on https://github.com/zenml-io/zenml/blob/main/src/zenml/zen_server/deploy/helm/values.yaml"""  # noqa: E501
         if interfaces["ingress"]:
             interfaces["ingress"].send_data(
                 {
@@ -253,7 +254,9 @@ class ZenMLCharm(CharmBase):
         if status.get("succeeded"):
             return "succeeded"
         else:
-            self.logger.info(f"ZenML Database migration job not completed, current status: {status}")
+            self.logger.info(
+                f"ZenML Database migration job not completed, current status: {status}"
+            )
             raise IOError("ZenML Database migration job not completed")
 
     def _on_database_created(self, event) -> None:
@@ -267,7 +270,7 @@ class ZenMLCharm(CharmBase):
             if self._zenml_job_resource_handler.get_deployed_resources():
                 """Delete the current job resources"""
                 self._zenml_job_resource_handler.delete()
-        """The reason of initializing the KRH here is because of the relational_db_data being loaded on event""" # noqa: E501
+        """The reason of initializing the KRH here is because of the relational_db_data being loaded on event"""  # noqa: E501
         self._zenml_job_resource_handler = KubernetesResourceHandler(
             field_manager="lightkube",
             template_files=ZENML_JOB,
@@ -304,13 +307,12 @@ class ZenMLCharm(CharmBase):
             if status != "succeeded":
                 self.unit.status = BlockedStatus(
                     "Failed to run ZenML Database Migration Job. Check zenml-database-migration job pod logs"  # noqa: E501
-                )  # noqa: E501
+                )
         except IOError:
             """Failed to run the job"""
             self.unit.status = BlockedStatus(
                 "Failed to run ZenML Database Migration Job. Check zenml-database-migration job logs"  # noqa: E501
-            )  # noqa: E501
-        
+            )
 
         self._on_event(event)
 
