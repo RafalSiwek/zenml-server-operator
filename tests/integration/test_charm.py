@@ -25,6 +25,7 @@ def lightkube_client() -> lightkube.Client:
     client = lightkube.Client(field_manager=CHARM_NAME)
     return client
 
+
 async def fetch_url(url):
     """Fetch provided URL and return JSON."""
     result = None
