@@ -2,6 +2,21 @@
 
 **DISCLAIMER:** This project was inspired by the [Charmed MLFlow Project](https://github.com/canonical/mlflow-operator) and also implements solutions found there.
 
+- [ZenML on Juju with Microk8s](#zenml-on-juju-with-microk8s)
+
+  - [Get Started](#get-started)
+
+    - [Prerequisites](#prerequisites)
+    - [Install dependencies](#install-dependencies)
+    - [Create ZenML Charm](#create-zenml-charm)
+    - [Install and prepare MicroK8s](#install-and-prepare-microk8s)
+    - [Install and prepare Juju](#install-and-prepare-juju)
+    - [Deploy Sandalone ZenML Server](#deploy-sandalone-zenml-server)
+
+  - [Integrate ZenML Server with Charmed Kubeflow](#integrate-zenml-server-with-charmed-kubeflow)
+
+  - [Examples](#examples)
+
 ## Get started
 
 ### Prerequisites
@@ -18,7 +33,7 @@ We are assuming that you are running this tutorial on a local machine or a EC2 i
 sudo snap install charmcraft --classic
 ```
 
-### Create ZenML
+### Create ZenML Charm
 
 ```bash
 charmcraft pack
@@ -66,7 +81,7 @@ microk8s is running
 
 **NOTE:** To use the MicroK8s built-in registry in the [ZenML stack](https://docs.zenml.io/stacks-and-components/component-guide/model-registries), please refer to the [guide](https://microk8s.io/docs/registry-built-in)
 
-### Install and prepare juju
+### Install and prepare Juju
 
 To install Juju from snap, run this command:
 
@@ -117,7 +132,7 @@ To connect the `zenml SDK` to it run
 zenml connect --uri http://localhost:31375/ --username default --password ''
 ```
 
-### Integrate ZenML Server with Charmed Kubeflow
+## Integrate ZenML Server with Charmed Kubeflow
 
 To use Charmed Kubeflow as a orchestrator for a ZenML stack some configurations have to be done:
 
@@ -224,3 +239,7 @@ zenml container-registry register <NAME> \
     --flavor=default \
     --uri=localhost:32000 # or for EC2 <publicIP>:32000
 ```
+
+## Examples
+
+Check out the [examples directory](/examples/)
