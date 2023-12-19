@@ -11,4 +11,5 @@ jobs:
   publish:
     name: Publish
     uses: canonical/charmed-kubeflow-workflows/.github/workflows/_publish.yaml@main
-    secrets: inherit
+    secrets:
+      CHARMCRAFT_CREDENTIALS: ${{ secrets.CHARMCRAFT_CREDENTIALS }}
