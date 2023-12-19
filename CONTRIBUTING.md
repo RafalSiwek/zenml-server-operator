@@ -33,7 +33,7 @@ source .tox/unit/bin/activate
 
 ```shell
 tox -e lint          # code style
-tox                  # runs 'lint', 'fmt', 'unit', 'integration' and 'bundle-test' environments
+tox                  # runs 'lint', 'fmt' and 'unit' environments
 ```
 
 ## Build Charm

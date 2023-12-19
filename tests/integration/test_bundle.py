@@ -1,5 +1,5 @@
-import subprocess
 import logging
+import subprocess
 
 import pytest
 from pytest_operator.plugin import OpsTest
@@ -8,6 +8,7 @@ BUNDLE_PATH = "./releases/latest/edge/zenml/bundle.yaml"
 ZENML_APP_NAME = "zenml-server"
 
 logger = logging.getLogger(__name__)
+
 
 class TestCharm:
     @pytest.mark.abort_on_fail
@@ -32,8 +33,3 @@ class TestCharm:
         if zenml_subprocess.stderr:
             logger.info(f"ZenML command stderr: {zenml_subprocess.stderr}")
         assert zenml_subprocess.returncode == 0
-
-
-        
-
-        
