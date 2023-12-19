@@ -23,9 +23,7 @@ class TestDeployRunners:
             charm_under_test, resources=resources, application_name=CHARM_NAME, trust=True
         )
 
-        await ops_test.model.wait_for_idle(
-            apps=[CHARM_NAME], status="blocked", timeout=300
-            )
+        await ops_test.model.wait_for_idle(apps=[CHARM_NAME], status="blocked", timeout=300)
         assert ops_test.model.applications[CHARM_NAME].units[0].workload_status == "blocked"
         assert (
             ops_test.model.applications[CHARM_NAME].units[0].workload_status_message

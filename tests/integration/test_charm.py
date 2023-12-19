@@ -103,9 +103,11 @@ class TestCharm:
         zenml_nodeport = config["zenml_nodeport"]["value"]
         zenml_url = f"http://localhost:{zenml_nodeport}"
         zenml_subprocess = subprocess.run(
-            ["zenml", "connect", "--url", zenml_url, "--username", "default" "--password", ""]
+            ["zenml", "connect", "--url", zenml_url, "--username", "default", "--password", ""]
         )
-
+        logger.info(f"ZenML command stdout: {zenml_subprocess.stdout}")
+        if zenml_subprocess.stderr:
+            logger.info(f"ZenML command stderr: {zenml_subprocess.stderr}")
         assert zenml_subprocess.returncode == 0
 
     async def test_ingress_relation(self, ops_test: OpsTest):
