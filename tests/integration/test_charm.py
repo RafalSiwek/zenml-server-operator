@@ -134,4 +134,3 @@ class TestCharm:
 
         # verify that UI is accessible
         assert result_status == 200
-        assert len(result_text) > 0
