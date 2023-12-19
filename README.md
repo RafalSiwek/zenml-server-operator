@@ -7,11 +7,9 @@
   - [Get Started](#get-started)
 
     - [Prerequisites](#prerequisites)
-    - [Install dependencies](#install-dependencies)
-    - [Create ZenML Charm](#create-zenml-charm)
-    - [Install and prepare MicroK8s](#install-and-prepare-microk8s)
     - [Install and prepare Juju](#install-and-prepare-juju)
-    - [Deploy Sandalone ZenML Server](#deploy-sandalone-zenml-server)
+    - [Deploy Sandalone ZenML Server Bundle](#build-and-deploy-the-charm-manually)
+    - [Build and deploy the charm manually](#build-and-deploy-the-charm-manually)
 
   - [Integrate ZenML Server with Charmed Kubeflow](#integrate-zenml-server-with-charmed-kubeflow)
 
@@ -26,20 +24,6 @@ We are assuming that you are running this tutorial on a local machine or a EC2 i
 - Runs Ubuntu 22.04 or later
 
 - Has at least 50GB free disk space
-
-### Install dependencies
-
-```bash
-sudo snap install charmcraft --classic
-```
-
-### Create ZenML Charm
-
-```bash
-charmcraft pack
-```
-
-This step will generate a charm file **zenml-server_ubuntu-22.04-amd64.charm**
 
 ### Install and prepare MicroK8s
 
@@ -92,16 +76,54 @@ sudo snap install juju --classic
 Deploy a Juju controller to the Kubernetes we set up with MicroK8s:
 
 ```bash
-juju bootstrap microk8s
+microk8s config | juju add-k8s my-k8s --client
+juju bootstrap my-k8s uk8sx
 ```
-
-### Deploy Sandalone ZenML Server
 
 Create a model
 
 ```bash
 juju add-model <model name>
 ```
+
+### Deploy Sandalone ZenML Server Bundle
+
+To deploy the ZenML bundle run:
+
+```bash
+juju deploy zenml --channel edge --trust
+```
+
+Run `juju status --watch 2s` to observe the charm deployment and after all the apps reach the `Active` status, the ZenML Server dashboard should be accessible as a `NodePort` under
+
+```
+http://localhost:31375/
+```
+
+With the default settings for `username = default` and no password.
+
+To connect the `zenml SDK` to it run
+
+```bash
+zenml connect --uri http://localhost:31375/ --username default --password ''
+```
+
+
+### Build and deploy the charm manually
+
+Install dependencies
+
+```bash
+sudo snap install charmcraft --classic
+```
+
+Create ZenML Charm
+
+```bash
+charmcraft pack
+```
+
+This step will generate a charm file **zenml-server_ubuntu-22.04-amd64.charm**
 
 Deploy the ZenML server charm
 
@@ -123,14 +145,7 @@ Run `juju status --watch 2s` to observe the charm deployment and after all the a
 ```
 http://localhost:31375/
 ```
-
-With the default settings for `username = default` and no password.
-
-To connect the `zenml SDK` to it run
-
-```bash
-zenml connect --uri http://localhost:31375/ --username default --password ''
-```
+With the same credentials
 
 ## Integrate ZenML Server with Charmed Kubeflow
 
