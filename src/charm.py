@@ -307,7 +307,6 @@ class ZenMLCharm(CharmBase):
         """Perform all required actions for the Charm."""
         try:
             self._check_leader()
-            interfaces = self._get_interfaces()
             relational_db_data = self._get_relational_db_data()
             envs = self._get_env_vars(relational_db_data)
 
