@@ -219,19 +219,6 @@ class ZenMLCharm(CharmBase):
             manifests.append(manifest)
         return json.dumps(manifests)
 
-    def _send_ingress_info(self, interfaces):
-        """Config based on https://github.com/zenml-io/zenml/blob/main/src/zenml/zen_server/deploy/helm/values.yaml"""  # noqa: E501
-        if interfaces["ingress"]:
-            interfaces["ingress"].send_data(
-                {
-                    "prefix": "/zenml/?(.*)",
-                    "rewrite": "/",
-                    "service": self.model.app.name,
-                    "namespace": self.model.name,
-                    "port": int(self._port),
-                }
-            )
-
     def _check_and_report_k8s_conflict(self, error):
         """Return True if error status code is 409 (conflict), False otherwise."""
         if error.status.code == 409:
@@ -331,7 +318,6 @@ class ZenMLCharm(CharmBase):
             self._update_layer(
                 self.container, self._container_name, self._charmed_zenml_layer(envs)
             )
-            self._send_ingress_info(interfaces)
         except ErrorWithStatus as err:
             self.model.unit.status = err.status
             self.logger.info(f"Event {event} stopped early with message: {str(err)}")
