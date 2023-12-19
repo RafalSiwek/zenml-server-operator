@@ -31,11 +31,9 @@ source .tox/unit/bin/activate
 
 ### Testing
 
-**Unit and integration tests are coming soon!**
-
 ```shell
 tox -e lint          # code style
-tox                  # runs 'lint' and 'fmt' environments
+tox                  # runs 'lint', 'fmt' and 'unit' environments
 ```
 
 ## Build Charm
