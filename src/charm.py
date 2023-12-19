@@ -2,7 +2,6 @@
 
 import json
 import logging
-from tenacity import retry, wait_fixed, stop_after_attempt
 from pathlib import Path
 
 import yaml
@@ -20,6 +19,7 @@ from ops.main import main
 from ops.model import ActiveStatus, BlockedStatus, MaintenanceStatus, WaitingStatus
 from ops.pebble import ChangeError, Layer
 from serialized_data_interface import NoCompatibleVersions, NoVersionsListed, get_interfaces
+from tenacity import retry, stop_after_attempt, wait_fixed
 
 ZENML_JOB = [
     "src/jobs/zenml-db-job.yaml.j2",
@@ -27,7 +27,7 @@ ZENML_JOB = [
 
 
 class ZenMLCharm(CharmBase):
-    """A Juju Charm for MLFlow."""
+    """A Juju Charm for ZenML Server."""
 
     def __init__(self, *args):
         super().__init__(*args)
@@ -219,18 +219,6 @@ class ZenMLCharm(CharmBase):
             manifests.append(manifest)
         return json.dumps(manifests)
 
-    def _send_ingress_info(self, interfaces):
-        if interfaces["ingress"]:
-            interfaces["ingress"].send_data(
-                {
-                    "prefix": "/zenml/?(.*)",
-                    "rewrite": "/",
-                    "service": self.model.app.name,
-                    "namespace": self.model.name,
-                    "port": int(self._port),
-                }
-            )
-
     def _check_and_report_k8s_conflict(self, error):
         """Return True if error status code is 409 (conflict), False otherwise."""
         if error.status.code == 409:
@@ -253,7 +241,9 @@ class ZenMLCharm(CharmBase):
         if status.get("succeeded"):
             return "succeeded"
         else:
-            self.logger.info(f"ZenML Database migration job not completed, current status: {status}")
+            self.logger.info(
+                f"ZenML Database migration job not completed, current status: {status}"
+            )
             raise IOError("ZenML Database migration job not completed")
 
     def _on_database_created(self, event) -> None:
@@ -267,7 +257,7 @@ class ZenMLCharm(CharmBase):
             if self._zenml_job_resource_handler.get_deployed_resources():
                 """Delete the current job resources"""
                 self._zenml_job_resource_handler.delete()
-        """The reason of initializing the KRH here is because of the relational_db_data being loaded on event""" # noqa: E501
+        """The reason of initializing the KRH here is because of the relational_db_data being loaded on event"""  # noqa: E501
         self._zenml_job_resource_handler = KubernetesResourceHandler(
             field_manager="lightkube",
             template_files=ZENML_JOB,
@@ -304,13 +294,12 @@ class ZenMLCharm(CharmBase):
             if status != "succeeded":
                 self.unit.status = BlockedStatus(
                     "Failed to run ZenML Database Migration Job. Check zenml-database-migration job pod logs"  # noqa: E501
-                )  # noqa: E501
+                )
         except IOError:
             """Failed to run the job"""
             self.unit.status = BlockedStatus(
                 "Failed to run ZenML Database Migration Job. Check zenml-database-migration job logs"  # noqa: E501
-            )  # noqa: E501
-        
+            )
 
         self._on_event(event)
 
@@ -318,7 +307,6 @@ class ZenMLCharm(CharmBase):
         """Perform all required actions for the Charm."""
         try:
             self._check_leader()
-            interfaces = self._get_interfaces()
             relational_db_data = self._get_relational_db_data()
             envs = self._get_env_vars(relational_db_data)
 
@@ -329,7 +317,6 @@ class ZenMLCharm(CharmBase):
             self._update_layer(
                 self.container, self._container_name, self._charmed_zenml_layer(envs)
             )
-            self._send_ingress_info(interfaces)
         except ErrorWithStatus as err:
             self.model.unit.status = err.status
             self.logger.info(f"Event {event} stopped early with message: {str(err)}")
