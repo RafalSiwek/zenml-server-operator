@@ -17,7 +17,7 @@ jobs:
         with:
           fetch-depth: 0
       - name: Check libs
-        uses: canonical/charming-actions/check-libraries@2.3.0
+        uses: canonical/charming-actions/check-libraries
         with:
           credentials: "${{ secrets.CHARMCRAFT_CREDENTIALS }}"
           github-token: "${{ secrets.GITHUB_TOKEN }}"
@@ -27,67 +27,67 @@ jobs:
     runs-on: ubuntu-20.04
 
     steps:
-    - name: Check out code
-      uses: actions/checkout@v2
+      - name: Check out code
+        uses: actions/checkout@v2
 
-    - name: Install dependencies
-      run: sudo apt-get install python3-pip tox
+      - name: Install dependencies
+        run: sudo apt-get install python3-pip tox
 
-    - name: Lint code
-      run: tox -e lint
+      - name: Lint code
+        run: tox -e lint
 
   unit:
     name: Unit Test
     runs-on: ubuntu-latest
 
     steps:
-    - name: Check out code
-      uses: actions/checkout@v2
+      - name: Check out code
+        uses: actions/checkout@v2
 
-    - name: Install dependencies
-      run: sudo apt-get install python3-pip tox
+      - name: Install dependencies
+        run: sudo apt-get install python3-pip tox
 
-    - name: Run unit tests
-      run: tox -e unit
+      - name: Run unit tests
+        run: tox -e unit
 
   integration:
     name: Integration tests (microk8s)
     runs-on: ubuntu-latest
     steps:
-    - name: Maximise GH runner space
-      uses: easimon/maximize-build-space@v8
-      with:
-        root-reserve-mb: 40960
-        remove-dotnet: 'true'
-        remove-haskell: 'true'
-        remove-android: 'true'
-        remove-codeql: 'true'
-        remove-docker-images: 'true'
-    - uses: actions/checkout@v2
-    - name: Setup operator environment
-      uses: charmed-kubernetes/actions-operator@1.1.0
-      with:
-        juju-channel: "3.1/stable"
-        provider: microk8s
-        channel: 1.25-strict/stable
-        microk8s-addons: "dns storage rbac metallb:10.64.140.43-10.64.140.49"
+      - name: Maximise GH runner space
+        uses: easimon/maximize-build-space@v8
+        with:
+          root-reserve-mb: 40960
+          remove-dotnet: "true"
+          remove-haskell: "true"
+          remove-android: "true"
+          remove-codeql: "true"
+          remove-docker-images: "true"
+      - uses: actions/checkout@v2
+      - name: Setup operator environment
+        uses: charmed-kubernetes/actions-operator@1.1.0
+        with:
+          juju-channel: "3.1/stable"
+          provider: microk8s
+          channel: 1.25-strict/stable
+          microk8s-addons: "dns storage rbac metallb:10.64.140.43-10.64.140.49"
 
-    - name: Run integration tests
-      run: sg snap_microk8s -c "tox -vve integration -- --model testing"
+      - name: Run integration tests
+        run: sg snap_microk8s -c "tox -vve integration -- --model testing"
 
-    # On failure, capture debugging resources      
-    - name: Get all
-      run: kubectl get all -A
-      if: failure()
+      # On failure, capture debugging resources
+      - name: Get all
+        run: kubectl get all -A
+        if: failure()
 
-    - name: Get juju status
-      run: juju status
-      if: failure()
+      - name: Get juju status
+        run: juju status
+        if: failure()
 
-    - name: Get workload logs
-      run: kubectl logs --tail 100 -ntesting -lapp.kubernetes.io/name=zenml-server
-      if: failure()
+      - name: Get workload logs
+        run: kubectl logs --tail 100 -ntesting -lapp.kubernetes.io/name=zenml-server
+        if: failure()
 
-    - name: Get operator logs
-      run: kubectl logs --tail 100 -ntesting -loperator.juju.is/name=zenml-server
-      if: failure()
+      - name: Get operator logs
+        run: kubectl logs --tail 100 -ntesting -loperator.juju.is/name=zenml-server
+        if: failure()

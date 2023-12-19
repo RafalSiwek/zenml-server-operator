@@ -20,6 +20,11 @@ ISTIO_PILOT_CHARM_NAME = "istio-pilot"
 METACONTROLLER_CHARM_NAME = "metacontroller-operator"
 
 
+@pytest.fixture(scope="session")
+def lightkube_client() -> lightkube.Client:
+    client = lightkube.Client(field_manager=CHARM_NAME)
+    return client
+
 async def fetch_url(url):
     """Fetch provided URL and return JSON."""
     result = None
