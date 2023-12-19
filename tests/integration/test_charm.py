@@ -126,7 +126,7 @@ class TestCharm:
 
         await ops_test.model.wait_for_idle(apps=[CHARM_NAME], status="active", timeout=60 * 5)
 
-    @retry(stop=stop_after_delay(600), wait=wait_fixed(10))
+
     @pytest.mark.abort_on_fail
     async def test_ingress_url(self, lightkube_client, ops_test: OpsTest):
         ingress_url = get_ingress_url(lightkube_client, ops_test.model_name)
@@ -134,3 +134,4 @@ class TestCharm:
 
         # verify that UI is accessible
         assert result_status == 200
+        assert len(result_text) > 0
