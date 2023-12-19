@@ -1,0 +1,18 @@
+bundle: kubernetes
+name: zenml
+docs:
+applications:
+  zenml-mysql:
+    charm: mysql-k8s
+    channel: 8.0/stable
+    scale: 1
+    trust: true
+    _github_repo_name: mysql-k8s-operator
+  zenml-server:
+    charm: zenml-server
+    channel: latest/edge
+    scale: 1
+    trust: true
+    _github_repo_name: RafalSiwek/zenml-server-operator
+relations:
+  - [zenml-server, zenml-mysql]
