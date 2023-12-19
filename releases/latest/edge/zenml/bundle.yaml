@@ -1,6 +1,6 @@
 bundle: kubernetes
 name: zenml
-docs:
+docs: https://discourse.charmhub.io/t/zenml-docs-index/12832
 applications:
   zenml-mysql:
     charm: mysql-k8s

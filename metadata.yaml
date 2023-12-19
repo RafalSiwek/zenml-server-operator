@@ -3,7 +3,7 @@ description: |
   zenml-server is a Kubernetes charm bundle for ZenML Server. This bundle automates the deployment and operation of ZenML Server on Kubernetes cluster.
 summary: |
   A charm which provides a Kubernetes installation of the ZenML (https://www.zenml.io/) server.
-docs:
+docs: https://discourse.charmhub.io/t/zenml-server-docs-index/12831
 containers:
   zenml-server:
     resource: oci-image
