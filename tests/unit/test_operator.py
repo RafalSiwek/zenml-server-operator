@@ -35,6 +35,7 @@ RELATIONAL_DB_DATA = {
 EXPECTED_ENVIRONMENT = {
     "ZENML_STORE_TYPE": "sql",
     "ZENML_STORE_URL": "mysql://username:password@host:port/zenml",
+    "DISABLE_DATABASE_MIGRATION": "True",
     "ZENML_STORE_SSL_VERIFY_SERVER_CERT": "false",
     "ZENML_SERVER_DEPLOYMENT_TYPE": "kubernetes",
     "ZENML_DEFAULT_PROJECT_NAME": "default",
