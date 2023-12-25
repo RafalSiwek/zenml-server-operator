@@ -95,7 +95,7 @@ class ZenMLCharm(CharmBase):
         ret_env_vars = {
             "ZENML_STORE_TYPE": "sql",
             "ZENML_STORE_URL": f"mysql://{relational_db_data['username']}:{relational_db_data['password']}@{relational_db_data['host']}:{relational_db_data['port']}/{self._database_name}",  # noqa: E501
-            "DISABLE_DATABASE_MIGRATION": "True", # To avoid migrations https://github.com/zenml-io/zenml/tree/9a69295e9aabaa90156b0cc6115f585a91d0f108/src/zenml/zen_stores/migrations # noqa: E501
+            "DISABLE_DATABASE_MIGRATION": "True",  # To avoid migrations https://github.com/zenml-io/zenml/tree/9a69295e9aabaa90156b0cc6115f585a91d0f108/src/zenml/zen_stores/migrations # noqa: E501
             "ZENML_STORE_SSL_VERIFY_SERVER_CERT": "false",
             "ZENML_SERVER_DEPLOYMENT_TYPE": "kubernetes",
             "ZENML_DEFAULT_PROJECT_NAME": "default",
