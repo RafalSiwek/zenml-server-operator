@@ -16,7 +16,7 @@ RELATIONAL_DB_CHARM_NAME = "mysql-k8s"
 
 class TestCharm:
     @retry(stop=stop_after_delay(300), wait=wait_fixed(10))
-    def _check_can_connect_with_zenml_client(self, zenml_url: str):
+    async def _check_can_connect_with_zenml_client(self, zenml_url: str):
         zenml_subprocess = subprocess.run(
             ["zenml", "connect", "--url", zenml_url, "--username", "default", "--password", ""]
         )
