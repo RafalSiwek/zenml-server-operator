@@ -69,8 +69,8 @@ jobs:
         with:
           juju-channel: "3.1/stable"
           provider: microk8s
-          channel: 1.28-strict/stable
-          microk8s-addons: "dns rbac storage metallb:10.64.140.43-10.64.140.49"
+          channel: 1.25-strict/stable
+          microk8s-addons: "dns storage rbac metallb:10.64.140.43-10.64.140.49"
 
       - name: Run integration tests
         run: sg snap_microk8s -c "tox -vve integration -- --model testing"

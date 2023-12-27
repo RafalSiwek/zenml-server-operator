@@ -1,6 +1,7 @@
 import logging
 import subprocess
 from pathlib import Path
+import time
 
 import pytest
 import yaml
@@ -22,15 +23,27 @@ class TestCharm:
             channel="8.0/stable",
             trust=True,
         )
-        await ops_test.model.relate(RELATIONAL_DB_CHARM_NAME, CHARM_NAME)
 
         await ops_test.model.wait_for_idle(
-            apps=[CHARM_NAME, RELATIONAL_DB_CHARM_NAME],
+            apps=[RELATIONAL_DB_CHARM_NAME],
             status="active",
             raise_on_blocked=False,
             raise_on_error=False,
             timeout=600,
         )
+
+        await ops_test.model.relate(RELATIONAL_DB_CHARM_NAME, CHARM_NAME)
+
+        time.wait(10) # Wait for relation to get active setup
+        
+        await ops_test.model.wait_for_idle(
+            apps=[RELATIONAL_DB_CHARM_NAME, CHARM_NAME],
+            status="active",
+            raise_on_blocked=False,
+            raise_on_error=False,
+            timeout=600,
+        )
+
         assert ops_test.model.applications[CHARM_NAME].units[0].workload_status == "active"
 
         config = await ops_test.model.applications[CHARM_NAME].get_config()
