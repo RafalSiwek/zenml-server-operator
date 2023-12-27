@@ -1,7 +1,7 @@
 import logging
 import subprocess
-from pathlib import Path
 import time
+from pathlib import Path
 
 import pytest
 import yaml
@@ -34,8 +34,8 @@ class TestCharm:
 
         await ops_test.model.relate(RELATIONAL_DB_CHARM_NAME, CHARM_NAME)
 
-        time.wait(10) # Wait for relation to get active setup
-        
+        time.wait(10)  # Wait for relation to get active setup
+
         await ops_test.model.wait_for_idle(
             apps=[RELATIONAL_DB_CHARM_NAME, CHARM_NAME],
             status="active",
