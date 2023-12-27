@@ -1,6 +1,5 @@
 import logging
 import subprocess
-import time
 from pathlib import Path
 
 import pytest
@@ -21,13 +20,12 @@ class TestCharm:
         await ops_test.model.deploy(
             RELATIONAL_DB_CHARM_NAME,
             channel="8.0/stable",
-            series="jammy",
             trust=True,
         )
-        await ops_test.model.relate(CHARM_NAME, RELATIONAL_DB_CHARM_NAME)
+        await ops_test.model.relate(RELATIONAL_DB_CHARM_NAME, CHARM_NAME)
 
         await ops_test.model.wait_for_idle(
-            apps=[CHARM_NAME],
+            apps=[CHARM_NAME, RELATIONAL_DB_CHARM_NAME],
             status="active",
             raise_on_blocked=False,
             raise_on_error=False,
@@ -37,19 +35,7 @@ class TestCharm:
 
         config = await ops_test.model.applications[CHARM_NAME].get_config()
 
-        zenml_port = config["zenml_port"]["value"]
-
-        portforward_subprocess = subprocess.Popen(
-            [
-                "kubectl",
-                "-n",
-                f"{ops_test.model_name}",
-                "port-forward",
-                f"svc/{CHARM_NAME}",
-                f"{zenml_port}:{zenml_port}",
-            ]
-        )
-        time.sleep(10)  # Must wait for port-forward
+        zenml_port = config["zenml_nodeport"]["value"]
 
         zenml_url = f"http://localhost:{zenml_port}"
         zenml_subprocess = subprocess.run(
@@ -59,5 +45,3 @@ class TestCharm:
         if zenml_subprocess.stderr:
             logger.info(f"ZenML command stderr: {zenml_subprocess.stderr}")
         assert zenml_subprocess.returncode == 0
-
-        portforward_subprocess.terminate()

@@ -97,5 +97,5 @@ jobs:
         if: failure()
 
       - name: Get container
-        run: kubectl get pods -ntesting -lapp.kubernetes.io/name=zenml-server -oyaml
+        run: kubectl describe po -ntesting -lapp.kubernetes.io/name=zenml-server
         if: failure()
