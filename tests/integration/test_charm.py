@@ -1,5 +1,6 @@
 import logging
 import subprocess
+import time
 from pathlib import Path
 
 import pytest
@@ -15,8 +16,8 @@ RELATIONAL_DB_CHARM_NAME = "mysql-k8s"
 
 
 class TestCharm:
-    @retry(stop=stop_after_delay(300), wait=wait_fixed(10))
-    async def _check_can_connect_with_zenml_client(self, zenml_url: str):
+    @retry(stop=stop_after_delay(100), wait=wait_fixed(10))
+    async def _test_can_connect_with_zenml_client(self, zenml_url: str):
         zenml_subprocess = subprocess.run(
             ["zenml", "connect", "--url", zenml_url, "--username", "default", "--password", ""]
         )
@@ -46,7 +47,23 @@ class TestCharm:
         assert ops_test.model.applications[CHARM_NAME].units[0].workload_status == "active"
 
         config = await ops_test.model.applications[CHARM_NAME].get_config()
-        zenml_nodeport = config["zenml_nodeport"]["value"]
-        zenml_url = f"http://localhost:{zenml_nodeport}"
 
-        self._check_can_connect_with_zenml_client(zenml_url=zenml_url)
+        zenml_port = config["zenml_port"]["value"]
+
+        zenml_subprocess = subprocess.Popen(
+            [
+                "kubectl",
+                "-n",
+                f"{ops_test.model_name}",
+                "port-forward",
+                f"svc/{CHARM_NAME}",
+                f"{zenml_port}:{zenml_port}",
+            ]
+        )
+        time.sleep(10)  # Must wait for port-forward
+
+        zenml_url = f"http://localhost:{zenml_port}"
+
+        self._test_can_connect_with_zenml_client(zenml_url=zenml_url)
+
+        zenml_subprocess.terminate()
