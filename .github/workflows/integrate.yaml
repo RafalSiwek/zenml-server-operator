@@ -69,8 +69,8 @@ jobs:
         with:
           juju-channel: "3.1/stable"
           provider: microk8s
-          channel: 1.28-strict/stable
-          microk8s-addons: "dns storage metallb:10.64.140.43-10.64.140.49"
+          channel: 1.25-strict/stable
+          microk8s-addons: "dns storage rbac metallb:10.64.140.43-10.64.140.49"
 
       - name: Run integration tests
         run: sg snap_microk8s -c "tox -vve integration -- --model testing"
@@ -90,4 +90,16 @@ jobs:
 
       - name: Get operator logs
         run: kubectl logs --tail 100 -ntesting -loperator.juju.is/name=zenml-server
+        if: failure()
+
+      - name: Get container logs
+        run: kubectl logs --tail 100 -ntesting -lapp.kubernetes.io/name=zenml-server -czenml-server
+        if: failure()
+
+      - name: Get container
+        run: kubectl describe po -ntesting -lapp.kubernetes.io/name=zenml-server
+        if: failure()
+
+      - name: Get jobs
+        run: kubectl get jobs -ntesting
         if: failure()

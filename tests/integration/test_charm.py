@@ -1,5 +1,6 @@
 import logging
 import subprocess
+import time
 from pathlib import Path
 
 import pytest
@@ -20,23 +21,36 @@ class TestCharm:
         await ops_test.model.deploy(
             RELATIONAL_DB_CHARM_NAME,
             channel="8.0/stable",
-            series="jammy",
             trust=True,
         )
-        await ops_test.model.relate(CHARM_NAME, RELATIONAL_DB_CHARM_NAME)
 
         await ops_test.model.wait_for_idle(
-            apps=[CHARM_NAME],
+            apps=[RELATIONAL_DB_CHARM_NAME],
             status="active",
             raise_on_blocked=False,
             raise_on_error=False,
             timeout=600,
         )
+
+        await ops_test.model.relate(RELATIONAL_DB_CHARM_NAME, CHARM_NAME)
+
+        time.sleep(10)  # Wait for relation to get active setup
+
+        await ops_test.model.wait_for_idle(
+            apps=[RELATIONAL_DB_CHARM_NAME, CHARM_NAME],
+            status="active",
+            raise_on_blocked=False,
+            raise_on_error=False,
+            timeout=600,
+        )
+
         assert ops_test.model.applications[CHARM_NAME].units[0].workload_status == "active"
 
         config = await ops_test.model.applications[CHARM_NAME].get_config()
-        zenml_nodeport = config["zenml_nodeport"]["value"]
-        zenml_url = f"http://localhost:{zenml_nodeport}"
+
+        zenml_port = config["zenml_nodeport"]["value"]
+
+        zenml_url = f"http://localhost:{zenml_port}"
         zenml_subprocess = subprocess.run(
             ["zenml", "connect", "--url", zenml_url, "--username", "default", "--password", ""]
         )
