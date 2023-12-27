@@ -91,3 +91,11 @@ jobs:
       - name: Get operator logs
         run: kubectl logs --tail 100 -ntesting -loperator.juju.is/name=zenml-server
         if: failure()
+
+      - name: Get container logs
+        run: kubectl logs --tail 100 -ntesting -lapp.kubernetes.io/name=zenml-server -czenml-server
+        if: failure()
+
+      - name: Get container
+        run: kubectl get pods -ntesting -lapp.kubernetes.io/name=zenml-server -oyaml
+        if: failure()

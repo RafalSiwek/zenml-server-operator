@@ -108,7 +108,6 @@ To connect the `zenml SDK` to it run
 zenml connect --uri http://localhost:31375/ --username default --password ''
 ```
 
-
 ### Build and deploy the charm manually
 
 Install dependencies
@@ -123,12 +122,12 @@ Create ZenML Charm
 charmcraft pack
 ```
 
-This step will generate a charm file **zenml-server_ubuntu-22.04-amd64.charm**
+This step will generate a charm file **zenml-server_ubuntu-20.04-amd64.charm**
 
 Deploy the ZenML server charm
 
 ```bash
-juju deploy ./zenml-server_ubuntu-22.04-amd64.charm zenml-server \
+juju deploy ./zenml-server_ubuntu-20.04-amd64.charm zenml-server \
     --resource oci-image=$(yq '.resources."oci-image"."upstream-source"' metadata.yaml)
 ```
 
@@ -145,6 +144,7 @@ Run `juju status --watch 2s` to observe the charm deployment and after all the a
 ```
 http://localhost:31375/
 ```
+
 With the same credentials
 
 ## Integrate ZenML Server with Charmed Kubeflow

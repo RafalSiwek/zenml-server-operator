@@ -6,7 +6,6 @@ from pathlib import Path
 import pytest
 import yaml
 from pytest_operator.plugin import OpsTest
-from tenacity import retry, stop_after_delay, wait_fixed
 
 logger = logging.getLogger(__name__)
 
@@ -16,16 +15,6 @@ RELATIONAL_DB_CHARM_NAME = "mysql-k8s"
 
 
 class TestCharm:
-    @retry(stop=stop_after_delay(100), wait=wait_fixed(10))
-    def _test_can_connect_with_zenml_client(self, zenml_url: str):
-        zenml_subprocess = subprocess.run(
-            ["zenml", "connect", "--url", zenml_url, "--username", "default", "--password", ""]
-        )
-        logger.info(f"ZenML command stdout: {zenml_subprocess.stdout}")
-        if zenml_subprocess.stderr:
-            logger.info(f"ZenML command stderr: {zenml_subprocess.stderr}")
-        assert zenml_subprocess.returncode == 0
-
     @pytest.mark.abort_on_fail
     @pytest.mark.skip_if_deployed
     async def test_successfull_deploy_senario(self, ops_test: OpsTest):
@@ -50,7 +39,7 @@ class TestCharm:
 
         zenml_port = config["zenml_port"]["value"]
 
-        zenml_subprocess = subprocess.Popen(
+        portforward_subprocess = subprocess.Popen(
             [
                 "kubectl",
                 "-n",
@@ -63,7 +52,12 @@ class TestCharm:
         time.sleep(10)  # Must wait for port-forward
 
         zenml_url = f"http://localhost:{zenml_port}"
+        zenml_subprocess = subprocess.run(
+            ["zenml", "connect", "--url", zenml_url, "--username", "default", "--password", ""]
+        )
+        logger.info(f"ZenML command stdout: {zenml_subprocess.stdout}")
+        if zenml_subprocess.stderr:
+            logger.info(f"ZenML command stderr: {zenml_subprocess.stderr}")
+        assert zenml_subprocess.returncode == 0
 
-        self._test_can_connect_with_zenml_client(zenml_url=zenml_url)
-
-        zenml_subprocess.terminate()
+        portforward_subprocess.terminate()
