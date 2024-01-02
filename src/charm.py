@@ -100,6 +100,7 @@ class ZenMLCharm(CharmBase):
             "ZENML_SERVER_DEPLOYMENT_TYPE": "kubernetes",
             "ZENML_DEFAULT_PROJECT_NAME": "default",
             "ZENML_DEFAULT_USER_NAME": "default",
+            "ZENML_SERVER_AUTH_SCHEME": "NO_AUTH",
             "ZENML_LOGGING_VERBOSITY": self.model.config.get("zenml_logging_verbosity", "INFO"),
             # See other possible variables:
             # https://github.com/zenml-io/zenml/blob/04fb3ca0ab94c8bbef31a7794f3f330b2b9b7cf5/src/zenml/zen_server/deploy/helm/templates/server-deployment.yaml # noqa: E501
@@ -303,11 +304,24 @@ class ZenMLCharm(CharmBase):
             )
 
         self._on_event(event)
+    
+    def _send_ingress_info(self, interfaces):
+        if interfaces["ingress"]:
+            interfaces["ingress"].send_data(
+                {
+                    "prefix": "/zenml/",
+                    "rewrite": "/",
+                    "service": self.model.app.name,
+                    "namespace": self.model.name,
+                    "port": int(self._port),
+                }
+            )
 
     def _on_event(self, event) -> None:
         """Perform all required actions for the Charm."""
         try:
             self._check_leader()
+            interfaces = self._get_interfaces()
             relational_db_data = self._get_relational_db_data()
             envs = self._get_env_vars(relational_db_data)
 
@@ -318,6 +332,7 @@ class ZenMLCharm(CharmBase):
             self._update_layer(
                 self.container, self._container_name, self._charmed_zenml_layer(envs)
             )
+            self._send_ingress_info(interfaces)
         except ErrorWithStatus as err:
             self.model.unit.status = err.status
             self.logger.info(f"Event {event} stopped early with message: {str(err)}")
