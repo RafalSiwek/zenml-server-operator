@@ -100,7 +100,6 @@ class ZenMLCharm(CharmBase):
             "ZENML_SERVER_DEPLOYMENT_TYPE": "kubernetes",
             "ZENML_DEFAULT_PROJECT_NAME": "default",
             "ZENML_DEFAULT_USER_NAME": "default",
-            "ZENML_SERVER_AUTH_SCHEME": "NO_AUTH",
             "ZENML_LOGGING_VERBOSITY": self.model.config.get("zenml_logging_verbosity", "INFO"),
             # See other possible variables:
             # https://github.com/zenml-io/zenml/blob/04fb3ca0ab94c8bbef31a7794f3f330b2b9b7cf5/src/zenml/zen_server/deploy/helm/templates/server-deployment.yaml # noqa: E501
@@ -324,6 +323,9 @@ class ZenMLCharm(CharmBase):
             interfaces = self._get_interfaces()
             relational_db_data = self._get_relational_db_data()
             envs = self._get_env_vars(relational_db_data)
+
+            if interfaces.get("ingress"):
+                envs["ZENML_SERVER_ROOT_URL_PATH"] = "/zenml"
 
             if not self.container.can_connect():
                 raise ErrorWithStatus(
