@@ -303,7 +303,7 @@ class ZenMLCharm(CharmBase):
             )
 
         self._on_event(event)
-    
+
     def _send_ingress_info(self, interfaces):
         if interfaces["ingress"]:
             interfaces["ingress"].send_data(
