@@ -30,13 +30,13 @@ async def setup_istio(ops_test: OpsTest, istio_gateway: str, istio_pilot: str):
     await ops_test.model.deploy(
         entity_url="istio-gateway",
         application_name=istio_gateway,
-        channel="1.17/stable",
+        channel="1.16/stable",
         config={"kind": "ingress"},
         trust=True,
     )
     await ops_test.model.deploy(
         istio_pilot,
-        channel="1.17/stable",
+        channel="1.16/stable",
         config={"default-gateway": "test-gateway"},
         trust=True,
     )
