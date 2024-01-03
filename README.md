@@ -11,6 +11,8 @@
 
 - [Integrate ZenML Server with Charmed Kubeflow](#integrate-zenml-server-with-charmed-kubeflow)
 
+- [Ingress](#ingress)
+
 - [Examples](#examples)
 
 ## Get started
@@ -253,16 +255,29 @@ zenml container-registry register <NAME> \
     --uri=localhost:32000 # or for EC2 <publicIP>:32000
 ```
 
-### Configure Ingress
+## Ingress
 
 Currently the charmed `zenml-server-operator` supports ingress integration with [`Charmed Istio`](https://github.com/canonical/istio-operators)
 
 **NOTE:** According to [ZenML Docs](https://docs.zenml.io/deploying-zenml/zenml-self-hosted/deploy-with-helm#use-a-dedicated-ingress-url-path-for-zenml):
+
 ```
 This method has one current limitation: the ZenML UI does not support URL rewriting and will not work properly if you use a dedicated Ingress URL path. You can still connect your client to the ZenML server and use it to run pipelines as usual, but you will not be able to use the ZenML UI.
 ```
 
-To integrate `zenml-server` with currently deployed kubeflow`istio-operator` run the command:
+**Additionally, the ZenML client does not support DEX auth - this might require configuring the server to use DEX as an external auth provider - more info [here](https://github.com/zenml-io/zenml/blob/main/src/zenml/zen_server/deploy/helm/values.yaml)**
+
+Deploy Istio Gateway and Istio Pilot charms and configure the relation
+
+```bash
+juju deploy istio-gateway istio-ingressgateway --channel 1.17/stable --config kind=ingress --trust
+
+juju deploy istio-pilot --channel 1.17/stable --config default-gateway=test-gateway -trust
+
+juju relate istio-pilot istio-ingressgateway
+```
+
+To integrate `zenml-server` with currently deployed `istio-operator` run the command:
 
 ```bash
 juju relate zenml-server istio-pilot
@@ -271,8 +286,9 @@ juju relate zenml-server istio-pilot
 After this done the ZenML Client can connect to the server over the ingress IP found by running:
 
 ```bash
-microk8s kubectl -n kubeflow get svc istio-ingressgateway-workload -o jsonpath='{.status.loadBalancer.ingress[0].ip}'
+microk8s kubectl -n <your namespace> get svc istio-ingressgateway-workload -o jsonpath='{.status.loadBalancer.ingress[0].ip}'
 ```
+
 Over the URL `http:/<ingress ip>/zenml/`
 
 ## Examples
