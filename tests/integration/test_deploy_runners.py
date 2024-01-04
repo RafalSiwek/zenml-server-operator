@@ -2,6 +2,7 @@ from pathlib import Path
 
 import pytest
 import yaml
+from juju.constraints import parse
 from pytest_operator.plugin import OpsTest
 
 METADATA = yaml.safe_load(Path("./metadata.yaml").read_text())
@@ -20,7 +21,11 @@ class TestDeployRunners:
         resources = {"oci-image": image_path}
 
         await ops_test.model.deploy(
-            charm_under_test, resources=resources, application_name=CHARM_NAME, trust=True
+            charm_under_test,
+            resources=resources,
+            application_name=CHARM_NAME,
+            trust=True,
+            constraints=parse("mem=1G"),
         )
 
         await ops_test.model.wait_for_idle(apps=[CHARM_NAME], status="blocked", timeout=300)
