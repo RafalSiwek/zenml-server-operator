@@ -70,7 +70,7 @@ jobs:
           juju-channel: "3.1/stable"
           provider: microk8s
           channel: 1.28-strict/stable
-          bootstrap-options: "--constraints mem=1G"
+          bootstrap-constraints: "mem=1G"
           microk8s-addons: "dns storage rbac metallb:10.64.140.43-10.64.140.49"
 
       - name: Run integration tests
