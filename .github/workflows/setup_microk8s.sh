@@ -1,7 +1,7 @@
 #!/bin/bash
 
 # This needs to be a separate file as newgrp will not have effect from  setup_environment.sh
-microk8s enable dns storage metallb:10.64.140.43-10.64.140.49
+microk8s enable dns storage rbac metallb:10.64.140.43-10.64.140.49
 microk8s kubectl rollout status deployment/hostpath-provisioner -n kube-system
 
 # Juju controller + model

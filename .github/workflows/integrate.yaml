@@ -69,7 +69,7 @@ jobs:
         with:
           juju-channel: "3.1/stable"
           provider: microk8s
-          channel: 1.25-strict/stable
+          channel: 1.28-strict/stable
           microk8s-addons: "dns storage rbac metallb:10.64.140.43-10.64.140.49"
 
       - name: Run integration tests
@@ -82,6 +82,10 @@ jobs:
 
       - name: Get juju status
         run: juju status
+        if: failure()
+
+      - name: Get juju debug logs
+        run: juju debug-log --limit 100
         if: failure()
 
       - name: Get workload logs
