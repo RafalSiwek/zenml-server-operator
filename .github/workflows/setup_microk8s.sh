@@ -5,7 +5,7 @@ microk8s enable dns storage rbac metallb:10.64.140.43-10.64.140.49
 microk8s kubectl rollout status deployment/hostpath-provisioner -n kube-system
 
 # Juju controller + model
-juju bootstrap --agent-version=2.9.34 --no-gui microk8s uk8sx
+juju bootstrap  --no-gui --constraints mem=1G microk8s uk8sx
 juju add-model kubeflow
 
 # Install + setup kubectl
