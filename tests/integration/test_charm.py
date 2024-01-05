@@ -72,7 +72,7 @@ class TestCharm:
             RELATIONAL_DB_CHARM_NAME,
             channel="8.0/stable",
             trust=True,
-            constraints=parse("mem=1G"),
+            constraints=parse("mem=2G"),
         )
 
         await ops_test.model.wait_for_idle(
