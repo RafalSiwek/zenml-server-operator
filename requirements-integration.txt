@@ -1,7 +1,6 @@
 aiohttp
 jinja2
-# Pinning to <4.0 due to compatibility with the 3.1 controller version
-juju<4.0
+juju==3.2.2
 pytest-operator
 requests
 zenml==0.53.1
