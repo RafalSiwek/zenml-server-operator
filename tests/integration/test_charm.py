@@ -6,7 +6,6 @@ from pathlib import Path
 import lightkube
 import pytest
 import yaml
-from juju.constraints import parse
 from lightkube.resources.core_v1 import Service
 from pytest_operator.plugin import OpsTest
 from tenacity import retry, stop_after_delay, wait_fixed
@@ -72,7 +71,6 @@ class TestCharm:
             RELATIONAL_DB_CHARM_NAME,
             channel="8.0/stable",
             trust=True,
-            constraints=parse("mem=2G"),
         )
 
         await ops_test.model.wait_for_idle(

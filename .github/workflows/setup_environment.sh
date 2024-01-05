@@ -27,7 +27,7 @@ sudo snap install charmcraft --classic --channel=latest/stable
 sudo snap install juju-crashdump --classic --channel=latest/stable
 
 # Microk8s setup
-sudo snap install microk8s --channel=1.2/stable --classic
+sudo snap install microk8s --channel=1.28/stable --classic
 sudo snap refresh charmcraft --channel latest/candidate
 sudo usermod -a -G microk8s ubuntu
 mkdir -p /home/ubuntu/.kube
