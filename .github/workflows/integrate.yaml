@@ -54,6 +54,8 @@ jobs:
     name: Integration tests (microk8s)
     runs-on: ubuntu-20.04
     steps:
+      - name: Workflow Telemetry
+        uses: catchpoint/workflow-telemetry-action@v1.8.7
       - name: Maximise GH runner space
         uses: easimon/maximize-build-space@v8
         with:
