@@ -24,6 +24,8 @@ EXPECTED_SERVICE = {
 
 CHARM_NAME = "zenml-server"
 
+CL_PATH = "charms.observability_libs.v0.kubernetes_compute_resources_patch.KubernetesComputeResourcesPatch"  # noqa: E501
+
 RELATIONAL_DB_DATA = {
     "database": "database",
     "host": "host",
@@ -66,6 +68,8 @@ def harness() -> Harness:
 class TestCharm:
     """Test class for TrainingOperatorCharm."""
 
+    @patch("lightkube.core.client.GenericSyncClient", MagicMock)
+    @patch(f"{CL_PATH}._namespace", "test-namespace")
     @patch(
         "charm.KubernetesServicePatch",
         lambda x, y, service_name, service_type, refresh_event: None,
@@ -74,6 +78,8 @@ class TestCharm:
         harness.begin_with_initial_hooks()
         assert harness.charm.model.unit.status == WaitingStatus("Waiting for leadership")
 
+    @patch("lightkube.core.client.GenericSyncClient", MagicMock)
+    @patch(f"{CL_PATH}._namespace", "test-namespace")
     @patch(
         "charm.KubernetesServicePatch",
         lambda x, y, service_name, service_type, refresh_event: None,
@@ -83,6 +89,8 @@ class TestCharm:
         harness.begin_with_initial_hooks()
         assert harness.charm.model.unit.status != WaitingStatus("Waiting for leadership")
 
+    @patch("lightkube.core.client.GenericSyncClient", MagicMock)
+    @patch(f"{CL_PATH}._namespace", "test-namespace")
     @patch(
         "charm.KubernetesServicePatch",
         lambda x, y, service_name, service_type, refresh_event: None,
@@ -94,6 +102,8 @@ class TestCharm:
         with pytest.raises(ErrorWithStatus):
             harness.charm._on_pebble_ready(None)
 
+    @patch("lightkube.core.client.GenericSyncClient", MagicMock)
+    @patch(f"{CL_PATH}._namespace", "test-namespace")
     @patch(
         "charm.KubernetesServicePatch",
         lambda x, y, service_name, service_type, refresh_event: None,
@@ -104,6 +114,8 @@ class TestCharm:
         harness.charm._on_pebble_ready(None)
         harness.charm._on_event.assert_called()
 
+    @patch("lightkube.core.client.GenericSyncClient", MagicMock)
+    @patch(f"{CL_PATH}._namespace", "test-namespace")
     @patch(
         "charm.KubernetesServicePatch",
         lambda x, y, service_name, service_type, refresh_event: None,
@@ -122,6 +134,8 @@ class TestCharm:
 
         assert e_info.value.status_type(WaitingStatus)
 
+    @patch("lightkube.core.client.GenericSyncClient", MagicMock)
+    @patch(f"{CL_PATH}._namespace", "test-namespace")
     @patch(
         "charm.KubernetesServicePatch",
         lambda x, y, service_name, service_type, refresh_event: None,
@@ -140,6 +154,8 @@ class TestCharm:
 
         assert e_info.value.status_type(BlockedStatus)
 
+    @patch("lightkube.core.client.GenericSyncClient", MagicMock)
+    @patch(f"{CL_PATH}._namespace", "test-namespace")
     @patch(
         "charm.KubernetesServicePatch",
         lambda x, y, service_name, service_type, refresh_event: None,
@@ -166,6 +182,8 @@ class TestCharm:
             "username": "username",
         }
 
+    @patch("lightkube.core.client.GenericSyncClient", MagicMock)
+    @patch(f"{CL_PATH}._namespace", "test-namespace")
     @patch(
         "charm.KubernetesServicePatch",
         lambda x, y, service_name, service_type, refresh_event: None,
@@ -184,6 +202,8 @@ class TestCharm:
         assert e_info.value.status_type(WaitingStatus)
         assert "Incorrect data found in relation relational-db" in str(e_info)
 
+    @patch("lightkube.core.client.GenericSyncClient", MagicMock)
+    @patch(f"{CL_PATH}._namespace", "test-namespace")
     @patch(
         "charm.KubernetesServicePatch",
         lambda x, y, service_name, service_type, refresh_event: None,
@@ -201,6 +221,8 @@ class TestCharm:
         assert e_info.value.status_type(BlockedStatus)
         assert "Please add relation to the database" in str(e_info)
 
+    @patch("lightkube.core.client.GenericSyncClient", MagicMock)
+    @patch(f"{CL_PATH}._namespace", "test-namespace")
     @patch(
         "charm.KubernetesServicePatch",
         lambda x, y, service_name, service_type, refresh_event: None,
@@ -221,6 +243,8 @@ class TestCharm:
         assert exc_info.value.status_type(BlockedStatus)
         assert "Failed to replan with error: " in str(exc_info)
 
+    @patch("lightkube.core.client.GenericSyncClient", MagicMock)
+    @patch(f"{CL_PATH}._namespace", "test-namespace")
     @patch(
         "charm.KubernetesServicePatch",
         lambda x, y, service_name, service_type, refresh_event: None,
@@ -237,6 +261,8 @@ class TestCharm:
         )
         assert harness.charm.container.get_plan().services == EXPECTED_SERVICE
 
+    @patch("lightkube.core.client.GenericSyncClient", MagicMock)
+    @patch(f"{CL_PATH}._namespace", "test-namespace")
     @patch(
         "charm.KubernetesServicePatch",
         lambda x, y, service_name, service_type, refresh_event: None,
@@ -249,6 +275,8 @@ class TestCharm:
         envs = harness.charm._get_env_vars(RELATIONAL_DB_DATA)
         assert envs == EXPECTED_ENVIRONMENT
 
+    @patch("lightkube.core.client.GenericSyncClient", MagicMock)
+    @patch(f"{CL_PATH}._namespace", "test-namespace")
     @patch(
         "charm.KubernetesServicePatch",
         lambda x, y, service_name, service_type, refresh_event: None,
@@ -264,6 +292,8 @@ class TestCharm:
         harness.charm._on_event(None)
         assert harness.charm.model.unit.status == ActiveStatus()
 
+    @patch("lightkube.core.client.GenericSyncClient", MagicMock)
+    @patch(f"{CL_PATH}._namespace", "test-namespace")
     @patch(
         "charm.KubernetesServicePatch",
         lambda x, y, service_name, service_type, refresh_event: None,

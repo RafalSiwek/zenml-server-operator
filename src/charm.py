@@ -2,12 +2,19 @@
 
 import json
 import logging
+import typing
 from pathlib import Path
 
 import yaml
 from charmed_kubeflow_chisme.exceptions import ErrorWithStatus
 from charmed_kubeflow_chisme.kubernetes import KubernetesResourceHandler
 from charms.data_platform_libs.v0.data_interfaces import DatabaseRequires
+from charms.observability_libs.v0.kubernetes_compute_resources_patch import (
+    K8sResourcePatchFailedEvent,
+    KubernetesComputeResourcesPatch,
+    ResourceRequirements,
+    adjust_resource_requirements,
+)
 from charms.observability_libs.v1.kubernetes_service_patch import KubernetesServicePatch
 from jinja2 import Template
 from lightkube import ApiError
@@ -37,6 +44,16 @@ class ZenMLCharm(CharmBase):
         self._container_name = "zenml-server"
         self._database_name = "zenml"
         self._container = self.unit.get_container(self._container_name)
+
+        self.resources_patch = KubernetesComputeResourcesPatch(
+            self,
+            self._container_name,
+            resource_reqs_func=self._resource_spec_from_config,
+        )
+        self.framework.observe(
+            self.resources_patch.on.patch_failed, self._on_resource_patch_failed
+        )
+
         self.database = DatabaseRequires(
             self, relation_name="relational-db", database_name=self._database_name
         )
@@ -88,6 +105,16 @@ class ZenMLCharm(CharmBase):
             service_name=f"{self.model.app.name}",
             refresh_event=self.on.config_changed,
         )
+
+    def _resource_spec_from_config(self) -> ResourceRequirements:
+        resource_limit = {
+            "cpu": self.model.config.get("cpu"),
+            "memory": self.model.config.get("memory"),
+        }
+        return adjust_resource_requirements(resource_limit, None)
+
+    def _on_resource_patch_failed(self, event: K8sResourcePatchFailedEvent):
+        self.unit.status = BlockedStatus(typing.cast(str, event.message))
 
     def _get_env_vars(self, relational_db_data):
         """Return environment variables based on model configuration."""
