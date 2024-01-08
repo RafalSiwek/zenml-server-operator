@@ -106,6 +106,10 @@ jobs:
         run: kubectl get jobs -ntesting
         if: failure()
 
-      - name: Get mysql container
+      - name: Describe mysql po
         run: kubectl describe po -ntesting -lapp.kubernetes.io/name=mysql-k8s
+        if: failure()
+
+      - name: Get mysql logs
+        run: kubectl logs --tail 100 -ntesting -lapp.kubernetes.io/name=mysql-k8s -cmysql
         if: failure()
