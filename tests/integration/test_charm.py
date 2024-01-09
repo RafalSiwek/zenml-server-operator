@@ -22,7 +22,7 @@ class TestCharm:
             RELATIONAL_DB_CHARM_NAME,
             channel="8.0/stable",
             trust=True,
-            config={"profile": 600},
+            config={"profile-limit-memory": 600},
         )
 
         await ops_test.model.wait_for_idle(
