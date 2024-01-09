@@ -114,7 +114,6 @@ class ZenMLCharm(CharmBase):
 
         return adjust_resource_requirements(
             limits=resource_limit,
-            requests=resource_limit,
         )
 
     def _on_resource_patch_failed(self, event: K8sResourcePatchFailedEvent):
