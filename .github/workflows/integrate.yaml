@@ -92,15 +92,11 @@ jobs:
         run: kubectl logs --tail 100 -ntesting -lapp.kubernetes.io/name=zenml-server
         if: failure()
 
-      - name: Get operator logs
-        run: kubectl logs --tail 100 -ntesting -loperator.juju.is/name=zenml-server
-        if: failure()
-
       - name: Get container logs
         run: kubectl logs --tail 100 -ntesting -lapp.kubernetes.io/name=zenml-server -czenml-server
         if: failure()
 
-      - name: Get container
+      - name: Describe zenml pod
         run: kubectl describe po -ntesting -lapp.kubernetes.io/name=zenml-server
         if: failure()
 
@@ -108,10 +104,14 @@ jobs:
         run: kubectl get jobs -ntesting
         if: failure()
 
-      - name: Describe mysql po
+      - name: Get mysql workload logs
+        run: kubectl logs --tail 100 -ntesting -lapp.kubernetes.io/name=mysql-k8s
+        if: failure()
+
+      - name: Describe mysql pod
         run: kubectl describe po -ntesting -lapp.kubernetes.io/name=mysql-k8s
         if: failure()
 
-      - name: Get mysql logs
+      - name: Get mysql container logs
         run: kubectl logs --tail 100 -ntesting -lapp.kubernetes.io/name=mysql-k8s -cmysql
         if: failure()
