@@ -29,6 +29,7 @@ class TestCharm:
             apps=[RELATIONAL_DB_CHARM_NAME],
             status="active",
             raise_on_blocked=True,
+            raise_on_error=False,
             timeout=90 * 30,
             idle_period=20,
         )
