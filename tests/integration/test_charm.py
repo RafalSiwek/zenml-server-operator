@@ -21,16 +21,16 @@ class TestCharm:
         await ops_test.model.deploy(
             RELATIONAL_DB_CHARM_NAME,
             channel="8.0/stable",
-            trust=True,
             config={"profile": "testing"},
+            trust=True,
         )
 
         await ops_test.model.wait_for_idle(
             apps=[RELATIONAL_DB_CHARM_NAME],
             status="active",
-            raise_on_blocked=False,
-            raise_on_error=False,
-            timeout=600,
+            raise_on_blocked=True,
+            timeout=90 * 30,
+            idle_period=20,
         )
 
         await ops_test.model.relate(RELATIONAL_DB_CHARM_NAME, CHARM_NAME)
