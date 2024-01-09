@@ -112,9 +112,7 @@ class ZenMLCharm(CharmBase):
             "memory": self.model.config.get("memory"),
         }
 
-        return adjust_resource_requirements(
-            limits=resource_limit,
-        )
+        return adjust_resource_requirements(resource_limit, None)
 
     def _on_resource_patch_failed(self, event: K8sResourcePatchFailedEvent):
         self.unit.status = BlockedStatus(typing.cast(str, event.message))
