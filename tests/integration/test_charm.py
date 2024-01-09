@@ -20,9 +20,9 @@ class TestCharm:
     async def test_successfull_deploy_senario(self, ops_test: OpsTest):
         await ops_test.model.deploy(
             RELATIONAL_DB_CHARM_NAME,
-            channel="8.0/stable",
+            channel="8.0/edge",
             trust=True,
-            config={"profile": "testing"},
+            config={"profile-limit-memory": 600},
         )
 
         await ops_test.model.wait_for_idle(
