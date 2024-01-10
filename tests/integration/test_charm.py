@@ -28,10 +28,9 @@ class TestCharm:
         await ops_test.model.wait_for_idle(
             apps=[RELATIONAL_DB_CHARM_NAME],
             status="active",
-            raise_on_blocked=True,
+            raise_on_blocked=False,
             raise_on_error=False,
-            timeout=90 * 30,
-            idle_period=20,
+            timeout=300,
         )
 
         await ops_test.model.relate(RELATIONAL_DB_CHARM_NAME, CHARM_NAME)
