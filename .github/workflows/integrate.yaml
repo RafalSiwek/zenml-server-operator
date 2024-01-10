@@ -69,12 +69,6 @@ jobs:
           remove-docker-images: "true"
       - uses: actions/checkout@v2
 
-      - name: Setup upterm session
-        uses: lhotari/action-upterm@v1
-        with:
-          limit-access-to-actor: true
-          limit-access-to-users: taurus-forever
-
       - name: Setup operator environment
         uses: charmed-kubernetes/actions-operator@main
         with:
