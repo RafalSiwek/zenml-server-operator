@@ -73,15 +73,16 @@ jobs:
         uses: charmed-kubernetes/actions-operator@main
         with:
           juju-channel: "3.1/stable"
+          bootstrap-options: "--agent-version 3.1.6"
           provider: microk8s
-          channel: 1.25-strict/stable
+          channel: 1.28-strict/stable
 
       - name: Run integration tests
         run: sg snap_microk8s -c "tox -vve integration -- --model testing --keep-models"
 
       - name: Setup upterm session
         uses: lhotari/action-upterm@v1
-        if: always()
+        if: failure()
         with:
           limit-access-to-actor: true
           limit-access-to-users: taurus-forever
