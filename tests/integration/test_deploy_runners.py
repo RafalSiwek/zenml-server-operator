@@ -24,6 +24,7 @@ class TestDeployRunners:
             resources=resources,
             application_name=CHARM_NAME,
             trust=True,
+            config={"memory": "600Mi"},
         )
 
         await ops_test.model.wait_for_idle(apps=[CHARM_NAME], status="blocked", timeout=300)
