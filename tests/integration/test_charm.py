@@ -20,7 +20,7 @@ class TestCharm:
     async def test_successfull_deploy_senario(self, ops_test: OpsTest):
         await ops_test.model.deploy(
             RELATIONAL_DB_CHARM_NAME,
-            channel="latest/stable",
+            channel="8.0/stable",
             trust=True,
         )
 
