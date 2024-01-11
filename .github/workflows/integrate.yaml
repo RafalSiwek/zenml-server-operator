@@ -77,13 +77,6 @@ jobs:
           channel: 1.28-strict/stable
           microk8s-addons: "dns rbac hostpath-storage"
 
-      - name: Setup upterm session
-        uses: lhotari/action-upterm@v1
-        if: always()
-        with:
-          limit-access-to-actor: true
-          limit-access-to-users: taurus-forever
-
       - name: Run integration tests
         run: sg snap_microk8s -c "tox -vve integration -- --model testing --keep-models"
 
