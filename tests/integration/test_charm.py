@@ -21,6 +21,7 @@ class TestCharm:
         await ops_test.model.deploy(
             RELATIONAL_DB_CHARM_NAME,
             channel="8.0/stable",
+            config={"profile": "testing"},
             trust=True,
         )
 
