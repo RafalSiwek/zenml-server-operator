@@ -78,7 +78,7 @@ jobs:
           microk8s-addons: "dns rbac hostpath-storage"
 
       - name: Run integration tests
-        run: sg snap_microk8s -c "tox -vve integration -- --model testing --keep-models"
+        run: sg snap_microk8s -c "tox -vve integration -- --model testing"
 
       # On failure, capture debugging resources
       - name: Get all
