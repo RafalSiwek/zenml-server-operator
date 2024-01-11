@@ -1,3 +1,4 @@
+import asyncio.exceptions
 import logging
 import subprocess
 import time
@@ -5,7 +6,6 @@ from pathlib import Path
 
 import pytest
 import yaml
-from asyncio.exceptions import TimeoutError
 from pytest_operator.plugin import OpsTest
 from tenacity import retry, stop_after_attempt
 
@@ -20,20 +20,20 @@ class TestCharm:
     @retry(stop=stop_after_attempt(5))
     async def _deploy_relational_db(self, ops_test: OpsTest):
         if RELATIONAL_DB_CHARM_NAME in ops_test.model.applications.keys():
-            logger.info(f"Redeploying...")
+            logger.info("Redeploying...")
             await ops_test.model.remove_application(
                 app_name=RELATIONAL_DB_CHARM_NAME,
                 force=True,
                 destroy_storage=True,
                 no_wait=True,
             )
-        
+
         await ops_test.model.deploy(
             RELATIONAL_DB_CHARM_NAME,
             channel="8.0/stable",
             trust=True,
         )
-        try:    
+        try:
             await ops_test.model.wait_for_idle(
                 apps=[RELATIONAL_DB_CHARM_NAME],
                 status="active",
@@ -41,7 +41,7 @@ class TestCharm:
                 raise_on_error=False,
                 timeout=30,
             )
-        except TimeoutError:
+        except asyncio.exceptions.TimeoutError:
             raise TimeoutError(f"Failed to deploy {RELATIONAL_DB_CHARM_NAME}")
 
     @pytest.mark.abort_on_fail
