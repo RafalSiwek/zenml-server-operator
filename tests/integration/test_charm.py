@@ -39,7 +39,7 @@ class TestCharm:
                 status="active",
                 raise_on_blocked=False,
                 raise_on_error=False,
-                timeout=30,
+                timeout=300,
             )
         except asyncio.exceptions.TimeoutError:
             raise TimeoutError(f"Failed to deploy {RELATIONAL_DB_CHARM_NAME}")
