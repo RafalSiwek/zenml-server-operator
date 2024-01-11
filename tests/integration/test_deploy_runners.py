@@ -20,7 +20,10 @@ class TestDeployRunners:
         resources = {"oci-image": image_path}
 
         await ops_test.model.deploy(
-            charm_under_test, resources=resources, application_name=CHARM_NAME, trust=True
+            charm_under_test,
+            resources=resources,
+            application_name=CHARM_NAME,
+            trust=True,
         )
 
         await ops_test.model.wait_for_idle(apps=[CHARM_NAME], status="blocked", timeout=300)
