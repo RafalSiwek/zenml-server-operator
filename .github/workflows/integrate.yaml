@@ -75,10 +75,7 @@ jobs:
           juju-channel: "3.1/stable"
           provider: microk8s
           channel: 1.28-strict/stable
-          microk8s-addons: "dns hostpath-storage"
-
-      - name: Run integration tests
-        run: sg snap_microk8s -c "tox -vve integration -- --model testing --keep-models"
+          microk8s-addons: "dns rbac hostpath-storage"
 
       - name: Setup upterm session
         uses: lhotari/action-upterm@v1
@@ -86,6 +83,9 @@ jobs:
         with:
           limit-access-to-actor: true
           limit-access-to-users: taurus-forever
+
+      - name: Run integration tests
+        run: sg snap_microk8s -c "tox -vve integration -- --model testing --keep-models"
 
       # On failure, capture debugging resources
       - name: Get all
