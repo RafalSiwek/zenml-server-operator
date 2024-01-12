@@ -9,7 +9,7 @@ import pytest
 import yaml
 from lightkube.resources.core_v1 import Service
 from pytest_operator.plugin import OpsTest
-from tenacity import retry, stop_after_delay, stop_after_attempt, wait_fixed
+from tenacity import retry, stop_after_attempt, stop_after_delay, wait_fixed
 
 logger = logging.getLogger(__name__)
 
