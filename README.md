@@ -73,6 +73,12 @@ To install Juju from snap, run this command:
 sudo snap install juju --classic
 ```
 
+On some machines there might be a missing folder which is required for juju to run correctly. Because of this please make sure to create this folder with:
+
+```bash
+mkdir -p ~/.local/share
+```
+
 Deploy a Juju controller to the Kubernetes we set up with MicroK8s:
 
 ```bash

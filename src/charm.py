@@ -1,15 +1,18 @@
 #!/usr/bin/env python3
 
-import json
 import logging
-from pathlib import Path
+import typing
 
-import yaml
 from charmed_kubeflow_chisme.exceptions import ErrorWithStatus
 from charmed_kubeflow_chisme.kubernetes import KubernetesResourceHandler
 from charms.data_platform_libs.v0.data_interfaces import DatabaseRequires
+from charms.observability_libs.v0.kubernetes_compute_resources_patch import (
+    K8sResourcePatchFailedEvent,
+    KubernetesComputeResourcesPatch,
+    ResourceRequirements,
+    adjust_resource_requirements,
+)
 from charms.observability_libs.v1.kubernetes_service_patch import KubernetesServicePatch
-from jinja2 import Template
 from lightkube import ApiError
 from lightkube.generic_resource import load_in_cluster_generic_resources
 from lightkube.models.core_v1 import ServicePort
@@ -37,6 +40,16 @@ class ZenMLCharm(CharmBase):
         self._container_name = "zenml-server"
         self._database_name = "zenml"
         self._container = self.unit.get_container(self._container_name)
+
+        self.resources_patch = KubernetesComputeResourcesPatch(
+            self,
+            self._container_name,
+            resource_reqs_func=self._resource_spec_from_config,
+        )
+        self.framework.observe(
+            self.resources_patch.on.patch_failed, self._on_resource_patch_failed
+        )
+
         self.database = DatabaseRequires(
             self, relation_name="relational-db", database_name=self._database_name
         )
@@ -88,6 +101,17 @@ class ZenMLCharm(CharmBase):
             service_name=f"{self.model.app.name}",
             refresh_event=self.on.config_changed,
         )
+
+    def _resource_spec_from_config(self) -> ResourceRequirements:
+        resource_limit = {
+            "cpu": self.model.config.get("cpu"),
+            "memory": self.model.config.get("memory"),
+        }
+
+        return adjust_resource_requirements(resource_limit, None)
+
+    def _on_resource_patch_failed(self, event: K8sResourcePatchFailedEvent):
+        self.unit.status = BlockedStatus(typing.cast(str, event.message))
 
     def _get_env_vars(self, relational_db_data):
         """Return environment variables based on model configuration."""
@@ -203,22 +227,6 @@ class ZenMLCharm(CharmBase):
     def _on_database_relation_removed(self, _) -> None:
         """Event is fired when relation with postgres is broken."""
         self.unit.status = BlockedStatus("Please add relation to the database")
-
-    def _send_manifests(self, interfaces, context, manifest_files, relation):
-        """Send manifests from folder to desired relation."""
-        if relation in interfaces and interfaces[relation]:
-            manifests = self._create_manifests(manifest_files, context)
-            interfaces[relation].send_data({relation: manifests})
-
-    def _create_manifests(self, manifest_files, context):
-        """Create manifests string for given folder and context."""
-        manifests = []
-        for file in manifest_files:
-            template = Template(Path(file).read_text())
-            rendered_template = template.render(**context)
-            manifest = yaml.safe_load(rendered_template)
-            manifests.append(manifest)
-        return json.dumps(manifests)
 
     def _check_and_report_k8s_conflict(self, error):
         """Return True if error status code is 409 (conflict), False otherwise."""
