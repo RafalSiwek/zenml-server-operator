@@ -71,7 +71,7 @@ jobs:
       - name: Setup operator environment
         uses: charmed-kubernetes/actions-operator@1.1.0
         with:
-          juju-channel: "3.1/stable"
+          juju-channel: 3.1/stable
           provider: microk8s
           channel: 1.28-strict/stable
           microk8s-addons: "dns storage rbac metallb:10.64.140.43-10.64.140.49"
@@ -86,6 +86,10 @@ jobs:
 
       - name: Get juju status
         run: juju status
+        if: failure()
+
+      - name: Get juju debug logs
+        run: juju debug-log --limit 100
         if: failure()
 
       - name: Get workload logs

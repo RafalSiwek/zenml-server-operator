@@ -312,12 +312,28 @@ class ZenMLCharm(CharmBase):
 
         self._on_event(event)
 
+    def _send_ingress_info(self, interfaces):
+        if interfaces["ingress"]:
+            interfaces["ingress"].send_data(
+                {
+                    "prefix": "/zenml/",
+                    "rewrite": "/",
+                    "service": self.model.app.name,
+                    "namespace": self.model.name,
+                    "port": int(self._port),
+                }
+            )
+
     def _on_event(self, event) -> None:
         """Perform all required actions for the Charm."""
         try:
             self._check_leader()
+            interfaces = self._get_interfaces()
             relational_db_data = self._get_relational_db_data()
             envs = self._get_env_vars(relational_db_data)
+
+            if interfaces.get("ingress"):
+                envs["ZENML_SERVER_ROOT_URL_PATH"] = "/zenml"
 
             if not self.container.can_connect():
                 raise ErrorWithStatus(
@@ -326,6 +342,7 @@ class ZenMLCharm(CharmBase):
             self._update_layer(
                 self.container, self._container_name, self._charmed_zenml_layer(envs)
             )
+            self._send_ingress_info(interfaces)
         except ErrorWithStatus as err:
             self.model.unit.status = err.status
             self.logger.info(f"Event {event} stopped early with message: {str(err)}")
