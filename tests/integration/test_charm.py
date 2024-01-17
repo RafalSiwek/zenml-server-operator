@@ -1,4 +1,3 @@
-import asyncio.exceptions
 import logging
 import subprocess
 import time
@@ -9,7 +8,7 @@ import pytest
 import yaml
 from lightkube.resources.core_v1 import Service
 from pytest_operator.plugin import OpsTest
-from tenacity import retry, stop_after_attempt, stop_after_delay, wait_fixed
+from tenacity import retry, stop_after_delay, wait_fixed
 
 logger = logging.getLogger(__name__)
 
@@ -65,37 +64,23 @@ def get_ingress_url(lightkube_client: lightkube.Client, model_name: str):
 
 
 class TestCharm:
-    @retry(stop=stop_after_attempt(5))
-    async def _deploy_relational_db(self, ops_test: OpsTest):
-        if RELATIONAL_DB_CHARM_NAME in ops_test.model.applications.keys():
-            logger.info("Redeploying...")
-            await ops_test.model.remove_application(
-                app_name=RELATIONAL_DB_CHARM_NAME,
-                force=True,
-                destroy_storage=True,
-                no_wait=True,
-            )
-
-        await ops_test.model.deploy(
-            RELATIONAL_DB_CHARM_NAME,
-            channel="8.0/stable",
-            trust=True,
-        )
-        try:
-            await ops_test.model.wait_for_idle(
-                apps=[RELATIONAL_DB_CHARM_NAME],
-                status="active",
-                raise_on_blocked=False,
-                raise_on_error=False,
-                timeout=300,
-            )
-        except asyncio.exceptions.TimeoutError:
-            raise TimeoutError(f"Failed to deploy {RELATIONAL_DB_CHARM_NAME}")
-
     @pytest.mark.abort_on_fail
     @pytest.mark.skip_if_deployed
     async def test_successfull_deploy_senario(self, ops_test: OpsTest):
-        await self._deploy_relational_db(ops_test)
+        await ops_test.model.deploy(
+            RELATIONAL_DB_CHARM_NAME,
+            channel="8.0/edge",
+            config={"profile": "testing"},
+            trust=True,
+        )
+
+        await ops_test.model.wait_for_idle(
+            apps=[RELATIONAL_DB_CHARM_NAME],
+            status="active",
+            raise_on_blocked=False,
+            raise_on_error=False,
+            timeout=300,
+        )
 
         await ops_test.model.relate(RELATIONAL_DB_CHARM_NAME, CHARM_NAME)
 
