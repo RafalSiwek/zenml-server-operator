@@ -70,13 +70,13 @@ class TestCharm:
         await ops_test.model.deploy(
             RELATIONAL_DB_CHARM_NAME,
             channel="8.0/edge",
+            config={"profile": "testing"},
             trust=True,
         )
 
         await ops_test.model.wait_for_idle(
             apps=[RELATIONAL_DB_CHARM_NAME],
             status="active",
-            config={"profile": "testing"},
             raise_on_blocked=False,
             raise_on_error=False,
             timeout=300,
