@@ -97,7 +97,7 @@ juju add-model <model name>
 To deploy the ZenML bundle run:
 
 ```bash
-juju deploy zenml --channel edge --trust
+juju deploy zenml --trust
 ```
 
 Run `juju status --watch 2s` to observe the charm deployment and after all the apps reach the `Active` status, the ZenML Server dashboard should be accessible as a `NodePort` under
