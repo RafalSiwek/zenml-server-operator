@@ -83,7 +83,7 @@ jobs:
           echo "setting output of tag_prefix=$tag_prefix"
           echo "tag_prefix=$tag_prefix" >> $GITHUB_OUTPUT
       - name: Upload charm to charmhub
-        uses: canonical/charming-actions/upload-charm@2.2.5
+        uses: canonical/charming-actions/upload-charm@master
         with:
           credentials: ${{ secrets.CHARMCRAFT_CREDENTIALS }}
           github-token: ${{ secrets.GITHUB_TOKEN }}
