@@ -71,7 +71,7 @@ jobs:
           # destination_channel
           destination_channel="${{ inputs.destination_channel || steps.select-channel.outputs.name }}"
           echo "setting output of destination_channel=$destination_channel"
-          echo "::set-output name=destination_channel::$destination_channel"
+          echo "destination_channel=$destination_channel" >> $GITHUB_OUTPUT
           # tag_prefix
           # if charm_path = ./ --> tag_prefix = '' (null)
           # if charm_path != ./some-charm (eg: a charm in a ./charms dir) --> tag_prefix = 'some-charm'
@@ -81,7 +81,7 @@ jobs:
             tag_prefix=$(basename ${{ matrix.charm-path }} )
           fi
           echo "setting output of tag_prefix=$tag_prefix"
-          echo "::set-output name=tag_prefix::$tag_prefix"
+          echo "tag_prefix=$tag_prefix" >> $GITHUB_OUTPUT
       - name: Upload charm to charmhub
         uses: canonical/charming-actions/upload-charm@2.2.5
         with:
