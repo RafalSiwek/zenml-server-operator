@@ -1,3 +1,5 @@
+[![ZenML Server](https://charmhub.io/zenml-server/badge.svg)](https://charmhub.io/zenml-server) [![Zenml](https://charmhub.io/zenml/badge.svg)](https://charmhub.io/zenml)
+
 # [ZenML](https://www.zenml.io/) on Juju with Microk8s
 
 **DISCLAIMER:** This project was inspired by the [Charmed MLFlow Project](https://github.com/canonical/mlflow-operator) and also implements solutions found there.
