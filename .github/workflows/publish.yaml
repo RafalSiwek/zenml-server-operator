@@ -1,15 +1,92 @@
-# reusable workflow for publishing all charms in this repo
+# reusable workflow for publishing all charms in a repo
 name: Publish
 
 on:
   workflow_call:
+    inputs:
+      source_branch:
+        description: Github branch from this repo to publish.  If blank, will use the default branch
+        default: ""
+        required: false
+        type: string
     secrets:
       CHARMCRAFT_CREDENTIALS:
         required: true
+  workflow_dispatch:
+    inputs:
+      destination_channel:
+        description: CharmHub channel to publish to
+        required: false
+        default: "latest/edge"
+        type: string
+      source_branch:
+        description: Github branch from this repo to publish.  If blank, will use the default branch
+        required: false
+        default: ""
+        type: string
 
 jobs:
-  publish:
-    name: Publish
-    uses: canonical/charmed-kubeflow-workflows/.github/workflows/_publish.yaml@main
-    secrets:
-      CHARMCRAFT_CREDENTIALS: ${{ secrets.CHARMCRAFT_CREDENTIALS }}
+  get-charm-paths:
+    # forks don't have access to keyrings and cannot publish, we just skip these jobs from forks
+    if: github.event.pull_request.head.repo.fork == false
+
+    name: Generate the Charm Matrix content (bash)
+    runs-on: ubuntu-22.04
+    outputs:
+      charm_paths: ${{ steps.get-charm-paths.outputs.charm-paths }}
+    steps:
+      - uses: actions/checkout@v3
+        with:
+          fetch-depth: 0
+      - name: Get paths for all charms in this repo
+        id: get-charm-paths
+        uses: ca-scribner/github-actions-recipes/get-charm-paths@master
+
+  publish-charm:
+    name: Publish Charm
+    runs-on: ubuntu-22.04
+    needs: get-charm-paths
+    strategy:
+      fail-fast: false
+      matrix:
+        charm-path: ${{ fromJson(needs.get-charm-paths.outputs.charm_paths) }}
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+        with:
+          fetch-depth: 0
+          ref: ${{ inputs.source_branch }}
+
+      - name: Select charmhub channel
+        uses: canonical/charming-actions/channel@2.4.0
+        id: select-channel
+        if: ${{ inputs.destination_channel == '' }}
+
+      # Combine inputs from different sources to a single canonical value so later steps don't
+      # need logic for picking the right one
+      - name: Parse and combine inputs
+        id: parse-inputs
+        run: |
+          # destination_channel
+          destination_channel="${{ inputs.destination_channel || steps.select-channel.outputs.name }}"
+          echo "setting output of destination_channel=$destination_channel"
+          echo "destination_channel=$destination_channel" >> $GITHUB_OUTPUT
+          # tag_prefix
+          # if charm_path = ./ --> tag_prefix = '' (null)
+          # if charm_path != ./some-charm (eg: a charm in a ./charms dir) --> tag_prefix = 'some-charm'
+          if [ ${{ matrix.charm-path }} == './' ]; then
+            tag_prefix=''
+          else
+            tag_prefix=$(basename ${{ matrix.charm-path }} )
+          fi
+          echo "setting output of tag_prefix=$tag_prefix"
+          echo "tag_prefix=$tag_prefix" >> $GITHUB_OUTPUT
+      - name: Upload charm to charmhub
+        uses: canonical/charming-actions/upload-charm@2.4.0
+        with:
+          credentials: ${{ secrets.CHARMCRAFT_CREDENTIALS }}
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          charm-path: ${{ matrix.charm-path }}
+          channel: ${{ steps.parse-inputs.outputs.destination_channel }}
+          tag-prefix: ${{ steps.parse-inputs.outputs.tag_prefix }}
