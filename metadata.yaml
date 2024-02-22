@@ -11,7 +11,7 @@ resources:
   oci-image:
     type: oci-image
     description: Backing OCI image
-    upstream-source: docker.io/zenmldocker/zenml-server:0.54.1
+    upstream-source: docker.io/zenmldocker/zenml-server:0.55.3
 requires:
   relational-db:
     interface: mysql_client
