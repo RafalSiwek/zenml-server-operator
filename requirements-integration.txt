@@ -3,5 +3,5 @@ jinja2
 juju<4.0
 pytest-operator
 requests
-zenml==0.55.3
+zenml==0.56.3
 -r requirements.txt
