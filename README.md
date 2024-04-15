@@ -32,7 +32,7 @@ We are assuming that you are running this tutorial on a local machine or a EC2 i
 Install MicroK8s from a snap package
 
 ```bash
-sudo snap install microk8s --classic
+sudo snap install microk8s --classic --channel=1.28/stable
 ```
 
 Add the current user to the `microk8s` group and generate configuration directory for `kubectl`
@@ -72,7 +72,7 @@ microk8s is running
 To install Juju from snap, run this command:
 
 ```bash
-sudo snap install juju --classic
+sudo snap install juju --classic --channel=3.1/stable
 ```
 
 On some machines there might be a missing folder which is required for juju to run correctly. Because of this please make sure to create this folder with:
