@@ -7,13 +7,18 @@ docs: https://discourse.charmhub.io/t/zenml-server-docs-index/12831
 containers:
   zenml-server:
     resource: oci-image
+    mounts:
+      - storage: zenml-config
+        location: /zenml/.zenconfig
 resources:
   oci-image:
     type: oci-image
     description: Backing OCI image
-    upstream-source: docker.io/zenmldocker/zenml-server:0.56.3
+    upstream-source: docker.io/zenmldocker/zenml-server:0.57.0
 requires:
   relational-db:
+    interface: mysql_client
+  backup-db:
     interface: mysql_client
   ingress:
     interface: ingress
@@ -55,3 +60,8 @@ requires:
             - prefix
     versions: [v1]
     __schema_source: https://raw.githubusercontent.com/canonical/operator-schemas/master/ingress.yaml
+
+
+storage:
+  zenml-config:
+    type: filesystem

@@ -39,6 +39,7 @@ class ZenMLCharm(CharmBase):
         self._port = self.model.config["zenml_port"]
         self._container_name = "zenml-server"
         self._database_name = "zenml"
+        self._backup_database_name = "zenml_backup"
         self._container = self.unit.get_container(self._container_name)
 
         self.resources_patch = KubernetesComputeResourcesPatch(
@@ -52,6 +53,10 @@ class ZenMLCharm(CharmBase):
 
         self.database = DatabaseRequires(
             self, relation_name="relational-db", database_name=self._database_name
+        )
+        
+        self.backup_database = DatabaseRequires(
+            self, relation_name="backup-db", database_name=self._backup_database_name
         )
 
         self.framework.observe(self.on.upgrade_charm, self._on_event)
@@ -120,11 +125,14 @@ class ZenMLCharm(CharmBase):
             "ZENML_STORE_TYPE": "sql",
             "ZENML_STORE_URL": f"mysql://{relational_db_data['username']}:{relational_db_data['password']}@{relational_db_data['host']}:{relational_db_data['port']}/{self._database_name}",  # noqa: E501
             "DISABLE_DATABASE_MIGRATION": "True",  # To avoid migrations https://github.com/zenml-io/zenml/tree/9a69295e9aabaa90156b0cc6115f585a91d0f108/src/zenml/zen_stores/migrations # noqa: E501
-            "ZENML_STORE_SSL_VERIFY_SERVER_CERT": "false",
+            "ZENML_STORE_SSL_VERIFY_SERVER_CERT": "False",
             "ZENML_SERVER_DEPLOYMENT_TYPE": "kubernetes",
+            "ZENML_SERVER": "True",
+            "ZENML_ANALYTICS_OPT_IN": "True",
             "ZENML_DEFAULT_PROJECT_NAME": "default",
-            "ZENML_DEFAULT_USER_NAME": "default",
             "ZENML_LOGGING_VERBOSITY": self.model.config.get("zenml_logging_verbosity", "INFO"),
+            "ZENML_STORE_BACKUP_STRATEGY": "database",
+            "ZENML_STORE_BACKUP_DATABASE": self._backup_database_name
             # See other possible variables:
             # https://github.com/zenml-io/zenml/blob/04fb3ca0ab94c8bbef31a7794f3f330b2b9b7cf5/src/zenml/zen_server/deploy/helm/templates/server-deployment.yaml # noqa: E501
         }
@@ -155,6 +163,20 @@ class ZenMLCharm(CharmBase):
                     "environment": env_vars,
                 }
             },
+            # "checks": {
+            #     "liveness": {
+            #         "level": "alive",
+            #         "http": {
+            #             "url": "http://localhost:8080/health"
+            #         }
+            #     },
+            #     "readiness": {
+            #         "level": "alive",
+            #         "http": {
+            #             "url": "http://localhost:8080/health"
+            #         }
+            #     },
+            # }
         }
 
         return Layer(layer_config)
@@ -276,9 +298,9 @@ class ZenMLCharm(CharmBase):
                 "namespace": self.model.name,
                 "database_url": job_env_vars["ZENML_STORE_URL"],
                 "default_project_name": job_env_vars["ZENML_DEFAULT_PROJECT_NAME"],
-                "default_user_name": job_env_vars["ZENML_DEFAULT_USER_NAME"],
                 "store_type": job_env_vars["ZENML_STORE_TYPE"],
                 "store_ssl_verify_server_cert": job_env_vars["ZENML_STORE_SSL_VERIFY_SERVER_CERT"],
+                "backup_database": self._backup_database_name
             },
             resource_types={Job},
             labels={"application_name": "zenml-database-migration", "scope": "all-resources"},
