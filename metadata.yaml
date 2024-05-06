@@ -18,8 +18,6 @@ resources:
 requires:
   relational-db:
     interface: mysql_client
-  backup-db:
-    interface: mysql_client
   ingress:
     interface: ingress
     schema:

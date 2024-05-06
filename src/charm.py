@@ -19,7 +19,7 @@ from lightkube.models.core_v1 import ServicePort
 from lightkube.resources.batch_v1 import Job
 from ops.charm import CharmBase
 from ops.main import main
-from ops.model import ActiveStatus, BlockedStatus, MaintenanceStatus, WaitingStatus
+from ops.model import ActiveStatus, BlockedStatus, MaintenanceStatus, WaitingStatus, ErrorStatus
 from ops.pebble import ChangeError, Layer
 from serialized_data_interface import NoCompatibleVersions, NoVersionsListed, get_interfaces
 from tenacity import retry, stop_after_attempt, wait_fixed
@@ -53,10 +53,6 @@ class ZenMLCharm(CharmBase):
 
         self.database = DatabaseRequires(
             self, relation_name="relational-db", database_name=self._database_name
-        )
-        
-        self.backup_database = DatabaseRequires(
-            self, relation_name="backup-db", database_name=self._backup_database_name
         )
 
         self.framework.observe(self.on.upgrade_charm, self._on_event)
@@ -311,7 +307,6 @@ class ZenMLCharm(CharmBase):
         try:
             self._zenml_job_resource_handler.apply()
         except ApiError as err:
-            self.model.unit.status = err.status
             self.logger.error(f"Failed to run ZenML Database Migration Job: {err}")
             self.unit.status = BlockedStatus(f"Failed to run ZenML Database Migration Job: {err}")
             return
